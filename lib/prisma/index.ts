@@ -9,15 +9,17 @@ const globalForPrisma = global as unknown as {
 const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
-  console.error(
-    "CRITICAL: DATABASE_URL is missing at runtime! Falling back to localhost (this will fail on Vercel).",
+  console.error("❌ CRITICAL: DATABASE_URL is UNDEFINED at runtime.");
+} else {
+  console.log(
+    `✅ DATABASE_URL is defined (length: ${connectionString.length})`,
   );
 }
 
 const pool = new Pool({
   connectionString:
     connectionString ||
-    "postgresql://postgres:postgres@localhost:5432/postgres",
+    "postgresql://postgres:postgres@127.0.0.1:5432/postgres",
 });
 const adapter = new PrismaPg(pool);
 
