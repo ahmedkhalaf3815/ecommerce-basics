@@ -13,10 +13,15 @@ const connectionString =
 
 if (!connectionString) {
   console.error("❌ CRITICAL: No database environment variables found!");
+  const allEnvKeys = Object.keys(process.env);
   console.log(
-    "Current keys available:",
-    Object.keys(process.env).filter(
-      (k) => k.includes("URL") || k.includes("DATABASE"),
+    "Environment keys found (anonymized):",
+    allEnvKeys.filter(
+      (k) =>
+        k.includes("URL") ||
+        k.includes("DB") ||
+        k.includes("DATABASE") ||
+        k.includes("POSTGRES"),
     ),
   );
 } else {
@@ -25,13 +30,24 @@ if (!connectionString) {
     : process.env.POSTGRES_URL
       ? "POSTGRES_URL"
       : "POSTGRES_PRISMA_URL";
-  console.log(`✅ ${foundVar} is defined (length: ${connectionString.length})`);
+  console.log(
+    `✅ Found ${foundVar} (matching length: ${connectionString.length})`,
+  );
+
+  if (
+    connectionString.includes("localhost") ||
+    connectionString.includes("127.0.0.1")
+  ) {
+    console.error(
+      "⚠️ WARNING: The connection string found in Vercel contains 'localhost' or '127.0.0.1'. Did you paste your local database URL into the Vercel dashboard?",
+    );
+  }
 }
 
 const pool = new Pool({
   connectionString:
     connectionString ||
-    "postgresql://postgres:postgres@127.0.0.1:5432/postgres",
+    "postgresql://postgres:postgres@127.0.0.1:5432/postgres", // This fallback only allows the app to load (with empty results) rather than crashing during build.
 });
 const adapter = new PrismaPg(pool);
 
