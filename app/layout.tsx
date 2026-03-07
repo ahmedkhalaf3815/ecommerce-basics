@@ -29,7 +29,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cart = await getCart();
+  let cart = null;
+  try {
+    cart = await getCart();
+  } catch (error) {
+    console.error("Error fetching cart in layout:", error);
+  }
   return (
     <ClerkProvider
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}

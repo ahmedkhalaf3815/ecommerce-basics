@@ -31,40 +31,46 @@ export type CartWithItems = {
 };
 
 export async function getCart(): Promise<CartWithItems | null> {
-  const { userId } = await auth();
-  if (!userId) return null;
+  try {
+    const { userId } = await auth();
+    if (!userId) return null;
 
-  const cart = await prisma.cart.findUnique({
-    where: { clerkUserId: userId },
-    include: {
-      items: {
-        include: {
-          product: true,
-        },
-        orderBy: {
-          productId: "asc", // Stable order
+    const cart = await prisma.cart.findUnique({
+      where: { clerkUserId: userId },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+          orderBy: {
+            productId: "asc", // Stable order
+          },
         },
       },
-    },
-  });
+    });
 
-  if (!cart) return null;
+    if (!cart) return null;
 
-  return {
-    ...cart,
-    createdAt: cart.createdAt.toISOString(),
-    updatedAt: cart.updatedAt.toISOString(),
+    return {
+      ...cart,
+      createdAt: cart.createdAt.toISOString(),
+      updatedAt: cart.updatedAt.toISOString(),
 
-    items: cart.items.map((item) => ({
-      ...item,
-      product: {
-        ...item.product,
-        price: item.product.price.toString(),
-        createdAt: item.product.createdAt.toISOString(),
-        updatedAt: item.product.updatedAt.toISOString(),
-      },
-    })),
-  };
+      items: cart.items.map((item) => ({
+        ...item,
+        product: {
+          ...item.product,
+          price: item.product.price.toString(),
+          createdAt: item.product.createdAt.toISOString(),
+          updatedAt: item.product.updatedAt.toISOString(),
+          categoryId: item.product.categoryId,
+        },
+      })),
+    };
+  } catch (error) {
+    console.error("Error in getCart server action:", error);
+    return null;
+  }
 }
 
 export async function removeItem(itemId: string) {
