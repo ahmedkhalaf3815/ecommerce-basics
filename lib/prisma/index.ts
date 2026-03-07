@@ -6,14 +6,26 @@ const globalForPrisma = global as unknown as {
   prisma: PrismaClient | null;
 };
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString =
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.POSTGRES_PRISMA_URL;
 
 if (!connectionString) {
-  console.error("❌ CRITICAL: DATABASE_URL is UNDEFINED at runtime.");
-} else {
+  console.error("❌ CRITICAL: No database environment variables found!");
   console.log(
-    `✅ DATABASE_URL is defined (length: ${connectionString.length})`,
+    "Current keys available:",
+    Object.keys(process.env).filter(
+      (k) => k.includes("URL") || k.includes("DATABASE"),
+    ),
   );
+} else {
+  const foundVar = process.env.DATABASE_URL
+    ? "DATABASE_URL"
+    : process.env.POSTGRES_URL
+      ? "POSTGRES_URL"
+      : "POSTGRES_PRISMA_URL";
+  console.log(`✅ ${foundVar} is defined (length: ${connectionString.length})`);
 }
 
 const pool = new Pool({
