@@ -6,11 +6,9 @@ const globalForPrisma = global as unknown as {
   prisma: PrismaClient | null;
 };
 
-const connectionString = process.env.DATABASE_URL;
-
-if (!connectionString) {
-  throw new Error("DATABASE_URL is not defined in environment variables");
-}
+const connectionString =
+  process.env.DATABASE_URL ||
+  "postgresql://postgres:postgres@localhost:5432/postgres";
 
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
