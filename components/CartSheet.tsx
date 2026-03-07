@@ -10,15 +10,13 @@ import {
 } from "./ui/sheet";
 import { Loader2, ShoppingCart, Trash2 } from "lucide-react";
 import { Button } from "./ui/button";
-import { getCart, removeItem } from "./lip/actions/cart";
+import { getCart, removeItem, CartWithItems } from "./lip/actions/cart";
 import { Separator } from "./ui/separator";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createCheckoutSession } from "./lip/actions/checkOut";
 
-type CartWithItems = any;
-
-function CartSheet({ initialCart }: { initialCart?: any }) {
+function CartSheet({ initialCart }: { initialCart?: CartWithItems | null }) {
   const [cart, setCart] = useState<CartWithItems | null>(initialCart || null);
   const [loading, setLoading] = useState(false);
 
@@ -55,14 +53,14 @@ function CartSheet({ initialCart }: { initialCart?: any }) {
   const calculateTotal = () => {
     if (!cart?.items) return 0;
     return cart.items.reduce(
-      (total: number, item: any) =>
+      (total: number, item: CartWithItems["items"][number]) =>
         total + Number(item.product.price) * item.quantity,
       0,
     );
   };
 
   const itemCount =
-    cart?.items?.reduce((acc: number, item: any) => {
+    cart?.items?.reduce((acc: number, item: CartWithItems["items"][number]) => {
       return acc + item.quantity;
     }, 0) || 0;
 
@@ -119,7 +117,7 @@ function CartSheet({ initialCart }: { initialCart?: any }) {
             </div>
           ) : (
             <div className="space-y-4 px-4">
-              {cart.items.map((item: any) => (
+              {cart.items.map((item: CartWithItems["items"][number]) => (
                 <div key={item.id} className="flex items-center gap-4">
                   <div className="relative h-16 w-16 overflow-hidden rounded bg-secondary">
                     <Image

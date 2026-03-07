@@ -7,7 +7,9 @@ export async function GET() {
       include: { orderItems: true },
     });
     return NextResponse.json({ count: orders.length, orders });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Internal Server Error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

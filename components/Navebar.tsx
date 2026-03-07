@@ -6,8 +6,9 @@ import React from "react";
 import { Button } from "./ui/button";
 import { Diamond } from "lucide-react";
 import CartSheet from "./CartSheet";
+import { CartWithItems } from "./lip/actions/cart";
 
-const Navebar = ({ cart }: { cart?: any }) => {
+const Navebar = ({ cart }: { cart?: CartWithItems | null }) => {
   const { user, isLoaded } = useUser();
   return (
     <div className="border-b bg-white sticky top-0 z-50 p-2">
