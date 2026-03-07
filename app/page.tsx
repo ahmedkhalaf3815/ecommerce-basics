@@ -27,7 +27,7 @@ const page = async () => {
       });
       return categories;
     } catch (error) {
-      console.log("error fetching categories", error);
+      console.error("error fetching categories", error);
       return [];
     }
   };
@@ -42,7 +42,7 @@ const page = async () => {
       });
       return products;
     } catch (error) {
-      console.log("error fetching featured products", error);
+      console.error("error fetching featured products", error);
       return [];
     }
   };

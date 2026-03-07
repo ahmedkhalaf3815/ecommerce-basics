@@ -20,7 +20,7 @@
     "@ai-sdk/openai": "^3.0.39",
     "@base-ui/react": "^1.1.0",
     "@clerk/nextjs": "^6.37.3",
-    "@prisma/adapter-pg": "^7.3.0",
+    "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",
     "@radix-ui/react-slot": "^1.2.4",
     "ai": "^6.0.108",
