@@ -31,7 +31,9 @@ export default async function RootLayout({
 }>) {
   const cart = await getCart();
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+    >
       <html lang="en" className={notoSans.variable}>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
