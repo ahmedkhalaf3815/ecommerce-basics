@@ -35,10 +35,15 @@ export default async function RootLayout({
   } catch (error) {
     console.error("Error fetching cart in layout:", error);
   }
+  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  if (!publishableKey) {
+    console.error(
+      "❌ CRITICAL: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is missing in layout.tsx",
+    );
+  }
+
   return (
-    <ClerkProvider
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-    >
+    <ClerkProvider publishableKey={publishableKey}>
       <html lang="en" className={notoSans.variable}>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}

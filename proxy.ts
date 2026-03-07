@@ -6,6 +6,19 @@ const isProtectedRoute = createRouteMatcher([
   "/api/chat(.*)",
 ]);
 
+const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const secretKey = process.env.CLERK_SECRET_KEY;
+
+if (!publishableKey) {
+  console.error(
+    "❌ CRITICAL: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is missing in proxy.ts",
+  );
+} else {
+  console.log(
+    `✅ Clerk Publishable Key found (length: ${publishableKey.length})`,
+  );
+}
+
 export default clerkMiddleware(
   async (auth, req) => {
     if (isProtectedRoute(req)) {
@@ -13,8 +26,8 @@ export default clerkMiddleware(
     }
   },
   {
-    publishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
-    secretKey: process.env.CLERK_SECRET_KEY,
+    publishableKey,
+    secretKey,
   },
 );
 
