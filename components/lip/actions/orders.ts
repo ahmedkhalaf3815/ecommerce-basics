@@ -2,8 +2,23 @@
 
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
+import { Prisma } from "@prisma/client";
 
-export async function getUserOrders() {
+export type OrderWithItems = Prisma.OrderGetPayload<{
+  include: {
+    orderItems: {
+      include: {
+        product: true;
+      };
+    };
+  };
+}>;
+
+export async function getUserOrders(): Promise<{
+  success: boolean;
+  data?: OrderWithItems[];
+  error?: string;
+}> {
   const { userId } = await auth();
 
   if (!userId) {

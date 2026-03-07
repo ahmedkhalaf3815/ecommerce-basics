@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "deploy": "vercel",
     "stripe:listen": "stripe listen --forward-to localhost:3000/api/webhook"
   },
   "prisma": {
@@ -27,6 +28,7 @@
     "dotenv": "^17.2.4",
     "embla-carousel-react": "^8.6.0",
     "fs": "^0.0.1-security",
+    "gh-pages": "^6.3.0",
     "lucide-react": "^0.563.0",
     "next": "16.1.6",
     "next-themes": "^0.4.6",

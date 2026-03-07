@@ -4,7 +4,7 @@ import { Package, ShoppingBag, Calendar } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { getUserOrders } from "@/components/lip/actions/orders";
+import { getUserOrders, OrderWithItems } from "@/components/lip/actions/orders";
 
 export default async function OrdersPage() {
   const { success, data: orders, error } = await getUserOrders();
@@ -62,7 +62,7 @@ export default async function OrdersPage() {
       </h1>
 
       <div className="space-y-6">
-        {orders.map((order) => (
+        {orders.map((order: OrderWithItems) => (
           <Card
             key={order.id}
             className="overflow-hidden border-emerald-100/50 shadow-sm hover:shadow-md transition-all duration-200"
