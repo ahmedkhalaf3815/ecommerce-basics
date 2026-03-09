@@ -5,53 +5,81 @@ import { auth } from "@clerk/nextjs/server";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_123", {
-  apiVersion: "2026-01-28.clover", // Latest API version
+  apiVersion: "2026-01-28.clover", // Use a stable API version
 });
 
 export async function createCheckoutSession() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  try {
+    const { userId } = await auth();
+    console.log("[createCheckoutSession] User ID:", userId);
 
-  const cart = await prisma.cart.findUnique({
-    where: { clerkUserId: userId },
-    include: {
-      items: {
-        include: { product: true },
+    if (!userId) {
+      console.error("[createCheckoutSession] Unauthorized - no userId");
+      throw new Error("Unauthorized");
+    }
+
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error(
+        "[createCheckoutSession] CRITICAL: STRIPE_SECRET_KEY is missing!",
+      );
+    }
+
+    if (!process.env.NEXT_PUBLIC_APP_URL) {
+      console.error(
+        "[createCheckoutSession] CRITICAL: NEXT_PUBLIC_APP_URL is missing!",
+      );
+    }
+
+    console.log("[createCheckoutSession] Fetching cart for user...");
+    const cart = await prisma.cart.findUnique({
+      where: { clerkUserId: userId },
+      include: {
+        items: {
+          include: { product: true },
+        },
       },
-    },
-  });
+    });
 
-  if (!cart || cart.items.length === 0) {
-    throw new Error("Cart is empty");
+    if (!cart || cart.items.length === 0) {
+      console.warn("[createCheckoutSession] Cart is empty or not found");
+      throw new Error("Cart is empty");
+    }
+
+    console.log(
+      `[createCheckoutSession] Cart items count: ${cart.items.length}`,
+    );
+    const lineItems = cart.items.map((item) => ({
+      price_data: {
+        currency: "usd",
+        product_data: {
+          name: item.product.name,
+          images: [item.product.image],
+        },
+        unit_amount: Math.round(Number(item.product.price) * 100),
+      },
+      quantity: item.quantity,
+    }));
+
+    console.log("[createCheckoutSession] Creating Stripe session...");
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: lineItems,
+      mode: "payment",
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/?canceled=true`,
+      metadata: {
+        userId: userId,
+        cartId: cart.id,
+      },
+    });
+
+    console.log("[createCheckoutSession] Session created:", session.id);
+    return { url: session.url };
+  } catch (error: any) {
+    console.error("[createCheckoutSession] ERROR:", error.message || error);
+    if (error.stack) console.error(error.stack);
+    throw error; // Re-throw to show error in UI or next layer
   }
-
-  const lineItems = cart.items.map((item) => ({
-    price_data: {
-      currency: "usd",
-      product_data: {
-        name: item.product.name,
-        images: [item.product.image],
-      },
-      unit_amount: Math.round(Number(item.product.price) * 100), // Stripe expects cents
-    },
-    quantity: item.quantity,
-    // 10.50 دولار.
-    // 1050
-  }));
-
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ["card"],
-    line_items: lineItems,
-    mode: "payment",
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/?canceled=true`,
-    metadata: {
-      userId: userId,
-      cartId: cart.id,
-    },
-  });
-
-  return { url: session.url };
 }
 
 import { revalidatePath } from "next/cache";
