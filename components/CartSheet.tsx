@@ -152,21 +152,6 @@ function CartSheet({ initialCart }: { initialCart?: CartWithItems | null }) {
           )}
         </div>
 
-        {cart && cart.items.length > 0 && (
-          <div className="border-t pt-6 space-y-4">
-            <Separator />
-            <div className="flex items-center justify-between text-base font-medium">
-              <span>Total</span>
-              <span>${calculateTotal().toFixed(2)}</span>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Shipping and taxes calculated at checkout.
-            </p>
-            <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
-              Checkout
-            </Button>
-          </div>
-        )}
 
         {cart && cart.items.length > 0 && (
           <SheetFooter className="border-t pt-6 sm:justify-center">
