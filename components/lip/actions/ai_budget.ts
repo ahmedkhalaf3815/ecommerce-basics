@@ -71,7 +71,16 @@ export async function createBudgetPlan(
     const { createGroq } = await import("@ai-sdk/groq");
     const { generateText } = await import("ai");
 
-    const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+      return {
+        success: false,
+        message:
+          "System Error: GROQ_API_KEY is missing. If running locally, restart 'npm run dev'. If on Vercel, ensure the key is added to Settings > Environment Variables, and then Redeploy.",
+      };
+    }
+
+    const groq = createGroq({ apiKey });
     const result = await generateText({
       model: groq("llama-3.3-70b-versatile"),
       system: `You are an expert AI Budget Meal Planner.
